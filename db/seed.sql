@@ -4,46 +4,20 @@
 INSERT INTO department
     (name)
 VALUES
-  ('Parks and Recreation'),
-       ('Police'),
-       ('Fire'),
-       ('Sewage'),
-       ('Library'),
-       ('Education'),
-       ('Public Works'),
-       ('Health'),
-       ('City Council');
+  ('Shire'),
+       ('Gondor'),
+       ('Mirkwood'),
+       ('Erebor'),
+       ('Valinor');
 
 INSERT INTO role
     (title, salary, department_id)
 VALUES
-    ('Director of Parks and Rec', 100000, 1),
-        ('Deputy Director of Parks and Rec', 90000, 1),
-        ('Chief of Police', 100000, 2),
-        ('Fire Chief', 100000, 3),
-        ('Director of Sewage', 100000, 4),
-        ('Library Director', 100000, 5),
-        ('Library Deputy Director', 90000, 5),
-        ('Director of Education', 100000, 6),
-        ('Public Works Director', 10000, 7),
-        ('Health Department Director', 100000, 8),
-        ('Director of Animal Control', 100000, 9),
-        ('Animal Controll Officer', 10000, 9),
-        ('City Planner', 80000, 9),
-        ('Park Ranger', 40000, 9),
-        ('Administrator', 80000, 1),
-        ('Security Guard', 80000, 9),
-        ('City Manager', 120000, 9),
-        ('Assistant City Manager', 110000, 9),
-        ('Permits Security', 80000, 1),
-        ('Office Manager', 80000, 9),
-        ('City Attorney Assitant', 80000, 9),
-        ('Councilman', 80000, 9),
-        ('Court Stenographer', 80000, 9),
-        ('Head of DMV', 90000, 9),
-        ('Police Officer', 80000, 2),
-        ('Sanitation Worker', 80000, 4),
-        ('Maintenance Worker', 80000, 7);
+    ('Hobbit', 38000, 1),
+        ('Human', 64000, 2),
+        ('Elf', 2931000, 3),
+        ('Istari', 2018000, 5),
+        ('Dwarf', 139000, 4);
 
 INSERT INTO employee
     (first_name, last_name, role_id, manager_id)
