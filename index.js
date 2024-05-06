@@ -1,12 +1,13 @@
 const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
+const { type } = require("os");
 
 init();
 
 // Display logo text, load main prompts
 function init() {
-  const logoText = logo({ name: "City of Pawnee" }).render();
+  const logoText = logo({ name: "Employees of Middle Earth" }).render();
 
   console.log(logoText);
 
@@ -16,9 +17,43 @@ function init() {
 function loadMainPrompts() {
   prompt([
     // TODO- Create first question user will see- "What would you like to do?"
-  ]).then((res) => {
+    {
+      type: 'list',
+      name: 'doList', 
+      message: 'What would you like to do?',
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update Employee Role', 'Nothing'],
+    },
+  ])
+  .then((res) => {
     // TODO- Create a variable to store the user's choice
+    const choice = res.doList;
     // TODO- Create a switch statement to call the appropriate function depending on what the user chose
+    switch (choice) {
+      case 'View All Departments':
+        console.log('Here are all departments');
+        break;
+      case 'View All Roles':
+        console.log('Here are all roles');
+        break;
+      case 'View All Employees':
+        console.log('Here are all employees');
+        break;
+      case 'Add a Department':
+        console.log('What is the name of the department?');
+        break;
+      case 'Add a Role':
+        console.log('What is the name of the role?');
+        break;
+      case 'Add an Employee':
+        console.log('What is the name of the employee?');
+        break;
+      case 'Update Employee Role':
+        console.log("Which employee's role do you want to update?");
+        break;
+      default:
+        quit();
+        break;
+    }
   });
 }
 
