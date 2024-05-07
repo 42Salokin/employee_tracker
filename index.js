@@ -16,7 +16,6 @@ function init() {
 
 function loadMainPrompts() {
   prompt([
-    // TODO- Create first question user will see- "What would you like to do?"
     {
       type: 'list',
       name: 'doList',
@@ -55,15 +54,13 @@ function loadMainPrompts() {
     });
 }
 
-// TODO- Create a function to View all deparments
 function viewDepartments() {
   db.findAllDepartments()
   .then(({rows}) => {
     console.table(rows);
-  }) 
+  })
 }
 
-// TODO- Create a function to View all roles
 function viewRoles() {
   db.findAllRoles()
   .then(({rows}) => {
@@ -79,7 +76,6 @@ function viewEmployees() {
   })
 }
 
-// TODO- Create a function to Add a department
 function addDepartment() {
   prompt([
     {
@@ -95,8 +91,15 @@ function addDepartment() {
 }
 
 // TODO- Create a function to Add a role
-function addRole() {
-  prompt([
+function depList() {
+  return db.findAllDepartments()
+  .then(({rows}) => {
+    return rows.map(dep => dep.name);
+  })
+}
+
+function createRolePrompt(departments) {
+  return prompt([
     {
       type: 'input',
       name: 'roleName',
@@ -108,16 +111,27 @@ function addRole() {
       message: "What is the role's salary?"
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'department',
-      message: 'Which department is the role in?'
+      message: 'Which department is the role in?',
+      choices: departments
     },
   ])
+}
+
+function addRole() { 
+  depList()
+    .then(departments => {
+    return createRolePrompt(departments);
+  })
     .then((res) => {
       const newRole = res.roleName;
       const newSal = res.salary;
       const newDep = res.department;
-      createRole(newRole, newSal, newDep)
+      db.createRole(newRole, newSal, newDep)
+    })
+    .catch(err => {
+      console.error('Error:', err);
     });
 }
 

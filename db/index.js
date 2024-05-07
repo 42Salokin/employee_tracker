@@ -15,18 +15,27 @@ class DB {
 
   // TODO- Create a query to Find all departments
   findAllDepartments() {
-    return this.query('SELECT * FROM department;')
-  }
+    return this.query('SELECT id, name AS department_name FROM department;');
+}
 
   // TODO- Create a query to Find all roles, join with departments to display the department name
   findAllRoles() {
-    return this.query('SELECT role.id, role.title, role.salary, department.name FROM role JOIN department ON role.id = department.id;')
-    }
+    return this.query('SELECT role.id, role.title AS role_title, role.salary, department.name AS department_name FROM role JOIN department ON role.department_id = department.id;');
+}
 
   // TODO- Create a query to Find all employees, join with roles and departments to display their roles, salaries, departments, and managers
   findAllEmployees() {
-    return this.query('SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name FROM role JOIN department ON role.id = department.id JOIN employee ON role.id = employee.role_id;')  
-  }
+    return this.query(`
+        SELECT e.first_name AS employee_first_name, e.last_name AS employee_last_name,
+               r.title AS role_title, r.salary, d.name AS department_name,
+               e2.first_name AS manager_first_name, e2.last_name AS manager_last_name
+        FROM employee e
+        JOIN role r ON e.role_id = r.id
+        JOIN department d ON r.department_id = d.id
+        LEFT JOIN employee e2 ON e.manager_id = e2.id;
+    `);
+}
+
 
   // TODO- Create a query to Create a new department
   createDepartment(newDep) {
@@ -37,20 +46,17 @@ class DB {
 
   // TODO- Create a query to Create a new role
   createRole(newRole, newSal, newDep) {
-    pool.query('SELECT $1 FROM department', [newDep], function (err, {rows}) {
-      switch (newDep) {
-        case value:
-          
-          break;
-      
-        default:
-          break;
-      }
-    })
-    pool.query('INSERT INTO role (title, salary) VALUES ($1)', [newDep], function (err, {rows}) {
-      console.log(`${newRole}, making ${newSal} per year, has been added to ${newDep}`);
-    })
-  }
+    // Insert the new role into the role table
+    pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, (SELECT id FROM department WHERE name = $3))', [newRole, newSal, newDep], function (err, result) {
+        if (err) {
+            console.error(err);
+            return; // Exit early if there's an error
+        }
+        console.log(`${newRole}, making ${newSal} per year, has been added to ${newDep}`);
+    });
+}
+
+
 
   // TODO- Create a query to Find all employees except the given employee id
 
