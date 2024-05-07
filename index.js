@@ -57,12 +57,12 @@ function loadMainPrompts() {
 
 // TODO- Create a function to View all deparments
 function viewDepartments() {
-  console.log('Here are all departments');
+  db.findAllDepartments();
 }
 
 // TODO- Create a function to View all roles
 function viewRoles() {
-  console.log('Here are all roles');
+  db.findAllRoles();
 }
 
 // TODO- Create a function to View all employees

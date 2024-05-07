@@ -13,6 +13,22 @@ class DB {
     }
   }
 
+  // TODO- Create a query to Find all departments
+  findAllDepartments() {
+    pool.query('SELECT * FROM department', function (err, {rows}) {
+      console.table(rows);
+    });
+    // return this.query();
+  }
+
+  // TODO- Create a query to Find all roles, join with departments to display the department name
+  findAllRoles() {
+    pool.query('SELECT role.id, role.title, role.salary, department.name FROM role JOIN department ON role.id = department.id', function (err, {rows}) {
+      console.table(rows);
+    });
+    // return this.query();
+  }
+
   // TODO- Create a query to Find all employees, join with roles and departments to display their roles, salaries, departments, and managers
   findAllEmployees() {
     pool.query('SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name FROM role JOIN department ON role.id = department.id JOIN employee ON role.id = employee.role_id', function (err, {rows}) {
@@ -31,13 +47,9 @@ class DB {
 
   // BONUS- Create a query to Update the given employee's manager
 
-  // TODO- Create a query to Find all roles, join with departments to display the department name
-
   // TODO- Create a query to Create a new role
 
   // BONUS- Create a query to Remove a role from the db
-
-  // TODO- Create a query to Find all departments
 
   // BONUS- Create a query to Find all departments, join with employees and roles and sum up utilized department budget
 
