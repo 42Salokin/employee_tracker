@@ -57,17 +57,26 @@ function loadMainPrompts() {
 
 // TODO- Create a function to View all deparments
 function viewDepartments() {
-  db.findAllDepartments();
+  db.findAllDepartments()
+  .then(({rows}) => {
+    console.table(rows);
+  }) 
 }
 
 // TODO- Create a function to View all roles
 function viewRoles() {
-  db.findAllRoles();
+  db.findAllRoles()
+  .then(({rows}) => {
+    console.table(rows);
+  })
 }
 
 // TODO- Create a function to View all employees
 function viewEmployees() {
-  db.findAllEmployees();
+  db.findAllEmployees()
+  .then(({rows}) => {
+    console.table(rows);
+  })
 }
 
 // TODO- Create a function to Add a department
@@ -81,7 +90,7 @@ function addDepartment() {
   ])
     .then((res) => {
       const newDep = res.department;
-      console.log(newDep);
+      db.createDepartment(newDep);
     });
 }
 
@@ -108,7 +117,7 @@ function addRole() {
       const newRole = res.roleName;
       const newSal = res.salary;
       const newDep = res.department;
-      console.log(`${newRole}, making ${newSal} per year, has been added to ${newDep}`);
+      createRole(newRole, newSal, newDep)
     });
 }
 
