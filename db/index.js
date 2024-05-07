@@ -15,7 +15,10 @@ class DB {
 
   // TODO- Create a query to Find all employees, join with roles and departments to display their roles, salaries, departments, and managers
   findAllEmployees() {
-    return this.query();
+    pool.query('SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name FROM role JOIN department ON role.id = department.id JOIN employee ON role.id = employee.role_id', function (err, {rows}) {
+      console.table(rows);
+    });
+    // return this.query();
   }
 
   // TODO- Create a query to Find all employees except the given employee id

@@ -67,7 +67,7 @@ function viewRoles() {
 
 // TODO- Create a function to View all employees
 function viewEmployees() {
-  console.log('Here are all employees');
+  db.findAllEmployees();
 }
 
 // TODO- Create a function to Add a department
