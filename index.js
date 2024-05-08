@@ -58,13 +58,15 @@ function viewDepartments() {
   db.findAllDepartments()
   .then(({rows}) => {
     console.table(rows);
-  })
+    loadMainPrompts();
+  })  
 }
 
 function viewRoles() {
   db.findAllRoles()
   .then(({rows}) => {
     console.table(rows);
+    loadMainPrompts();
   })
 }
 
@@ -73,6 +75,7 @@ function viewEmployees() {
   db.findAllEmployees()
   .then(({rows}) => {
     console.table(rows);
+    loadMainPrompts();
   })
 }
 
@@ -87,6 +90,13 @@ function addDepartment() {
     .then((res) => {
       const newDep = res.department;
       db.createDepartment(newDep);
+      console.log(`${newDep} added to departments`);
+    })
+    .then(() => {
+      loadMainPrompts();
+    })
+    .catch(err => {
+      console.error('Error:', err);
     });
 }
 
@@ -94,7 +104,7 @@ function addDepartment() {
 function addRole() {
   return db.findAllDepartments()
     .then(({rows}) => {
-      const departments = rows.map(dep => dep.name);
+      const departments = rows.map(dep => dep.department_name);
       return prompt([
         {
           type: 'input',
@@ -118,7 +128,11 @@ function addRole() {
       const newRole = res.roleName;
       const newSal = res.salary;
       const newDep = res.department;
-      return db.createRole(newRole, newSal, newDep);
+      db.createRole(newRole, newSal, newDep);
+      console.log(`${newRole}, making ${newSal} per year, has been added to ${newDep}`);
+    })
+    .then(() => {
+      loadMainPrompts();
     })
     .catch(err => {
       console.error('Error:', err);
@@ -155,7 +169,7 @@ function addEmployee() {
           type: 'list',
           name: 'manager',
           message: "Who is the employee's manager?",
-          choices: [...managerChoices, 'None']
+          choices: [...managerChoices]
         },
       ]);
     })
@@ -163,9 +177,13 @@ function addEmployee() {
       const firstName = res.firstName;
       const lastName = res.lastName;
       const empRole = res.role;
-      const empManager = res.manager === 'None' ? null : res.manager;
+      const empManager = res.manager;
 
       db.createEmployee(firstName, lastName, empRole, empManager);
+      console.log(`${firstName} ${lastName} has been added in the role of ${empRole}, answering to ${empManager}`);
+    })
+    .then(() => {
+      loadMainPrompts();
     })
     .catch(err => {
       console.error('Error:', err);
@@ -200,6 +218,10 @@ function updateRole() {
     const empName = res.employee;
     const newRole = res.role;
     db.updateEmployee(empName, newRole);
+    console.log(`${empName}'s role was updated to ${newRole}`);
+  })
+  .then(() => {
+    loadMainPrompts();
   })
   .catch(err => {
     console.error('Error:', err);

@@ -39,8 +39,11 @@ class DB {
 
   // TODO- Create a query to Create a new department
   createDepartment(newDep) {
-    pool.query('INSERT INTO department (name) VALUES ($1)', [newDep], function (err, {rows}) {
-      console.log(`${newDep} added to departments`);
+    pool.query('INSERT INTO department (name) VALUES ($1)', [newDep], function (err, result) {
+      if (err) {
+        console.error(err);
+        return; // Exit early if there's an error
+    }
     })
   }
 
@@ -53,7 +56,6 @@ class DB {
             console.error(err);
             return; // Exit early if there's an error
         }
-        console.log(`${newRole}, making ${newSal} per year, has been added to ${newDep}`);
     });
 }
 
@@ -111,9 +113,6 @@ findEmployeeIdByName(firstName, lastName) {
         
         return this.query(query, values);
       })
-      .then(() => {
-        console.log(`${firstName} ${lastName} has been added in the role of ${roleName}, answering to ${managerName}`);
-      })
       .catch(err => {
         console.error(err);
       });
@@ -130,7 +129,6 @@ updateEmployee(empName, newRole) {
         console.error(err);
         return;
       }
-      console.log(`${empName}'s role was updated to ${newRole}`);
     });    
 })
 }
