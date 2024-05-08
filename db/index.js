@@ -47,7 +47,8 @@ class DB {
   // TODO- Create a query to Create a new role
   createRole(newRole, newSal, newDep) {
     // Insert the new role into the role table
-    pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, (SELECT id FROM department WHERE name = $3))', [newRole, newSal, newDep], function (err, result) {
+    pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, (SELECT id FROM department WHERE name = $3))', 
+    [newRole, newSal, newDep], function (err, result) {
         if (err) {
             console.error(err);
             return; // Exit early if there's an error
@@ -56,11 +57,76 @@ class DB {
     });
 }
 
+  // TODO- Create a query to Create a new employee
+  findRoleIdByTitle(roleName) {
+    // Return the promise directly from pool.query
+    return pool.query('SELECT id FROM role WHERE title = $1', [roleName])
+        .then(result => {
+            // Check if any rows were returned
+            if (result.rows.length > 0) {
+                // If rows were returned, return the role ID (assuming it's in the first row)
+                return result.rows[0].id;
+            } else {
+                // If no rows were returned (role not found), return null
+                return null;
+            }
+        })
+        .catch(err => {
+            // If there's an error with the query, throw the error
+            throw err;
+        });
+}
 
+findEmployeeIdByName(firstName, lastName) {
+  // Return the promise directly from pool.query
+  console.log(`Line 82:${firstName, lastName}`);
+  return pool.query('SELECT id FROM employee WHERE first_name = $1 AND last_name = $2', [firstName, lastName])
+      .then(result => {
+          // Check if any rows were returned
+          console.log(`Line 86:${result}`);
+          if (result.rows.length > 0) {
+              // If rows were returned, return the employee ID (assuming it's in the first row)
+              console.log(`Line 89:${result.rows[0].id}`);
+              return result.rows[0].id;
+          } else {
+              // If no rows were returned (employee not found), return null
+              return null;
+          }
+      })
+      .catch(err => {
+          // If there's an error with the query, throw the error
+          throw err;
+      });
+}
+
+
+  createEmployee(firstName, lastName, roleName, managerName) {
+    console.log(`Line 104: ${managerName}`);
+    const [managerFirstName, managerLastName] = managerName.split(' ');
+    // Get role and manager IDs from the database
+    Promise.all([db.findRoleIdByTitle(roleName), db.findEmployeeIdByName(managerFirstName, managerLastName)])
+      .then(([roleId, managerId]) => {
+        console.log(`Line 108:${managerId}`);
+        // Insert the new employee into the employee table
+        const query = `
+          INSERT INTO employee (first_name, last_name, role_id, manager_id)
+          VALUES ($1, $2, $3, $4)
+        `;
+        const values = [firstName, lastName, roleId, managerId];
+        
+        return this.query(query, values);
+      })
+      .then(() => {
+        console.log(`${firstName} ${lastName} has been added in the role of ${roleName}, answering to ${managerName}`);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+  
 
   // TODO- Create a query to Find all employees except the given employee id
 
-  // TODO- Create a query to Create a new employee
 
   // BONUS- Create a query to Remove an employee with the given id
 
@@ -79,5 +145,7 @@ class DB {
 
   // BONUS- Create a query to Find all employees by manager, join with departments and roles to display titles and department names
 }
+
+const db = new DB();
 
 module.exports = new DB();

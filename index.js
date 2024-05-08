@@ -137,35 +137,50 @@ function addRole() {
 
 // TODO- Create a function to Add an employee
 function addEmployee() {
-  prompt([
-    {
-      type: 'input',
-      name: 'firstName',
-      message: "What is the employee's first name?"
-    },
-    {
-      type: 'input',
-      name: 'lastName',
-      message: "What is the employee's last name?"
-    },
-    {
-      type: 'input',
-      name: 'role',
-      message: "What is the employee's role?"
-    },
-    {
-      type: 'input',
-      name: 'manager',
-      message: "Who is the employee's manager?"
-    },
-  ])
+  Promise.all([db.findAllRoles(), db.findAllEmployees()])
+    .then(([roles, managers]) => {
+      const roleChoices = roles.rows.map(role => role.role_title);
+      const uniqueManagerNames = new Set(managers.rows.map(manager => `${manager.manager_first_name} ${manager.manager_last_name}`));
+      const managerChoices = [...uniqueManagerNames];
+
+      return prompt([
+        {
+          type: 'input',
+          name: 'firstName',
+          message: "What is the employee's first name?"
+        },
+        {
+          type: 'input',
+          name: 'lastName',
+          message: "What is the employee's last name?"
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: "What is the employee's role?",
+          choices: roleChoices
+        },
+        {
+          type: 'list',
+          name: 'manager',
+          message: "Who is the employee's manager?",
+          choices: [...managerChoices, 'None']
+        },
+      ]);
+    })
     .then((res) => {
       const firstName = res.firstName;
       const lastName = res.lastName;
       const empRole = res.role;
-      const empManager = res.manager;
-      console.log(`${firstName} ${lastName} has been added in the role of ${empRole}, answering to ${empManager}`);
-    });}
+      const empManager = res.manager === 'None' ? null : res.manager;
+
+      db.createEmployee(firstName, lastName, empRole, empManager);
+    })
+    .catch(err => {
+      console.error('Error:', err);
+    });
+}
+
 
 // TODO- Create a function to Update an employee's role
 function updateRole() {
