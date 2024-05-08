@@ -132,24 +132,76 @@ updateEmployee(empName, newRole) {
     });    
 })
 }
-  // TODO- Create a query to Find all employees except the given employee id
-
-
-  // BONUS- Create a query to Remove an employee with the given id
-
-
-  // BONUS- Create a query to Update the given employee's manager
-
-
-  // BONUS- Create a query to Remove a role from the db
-
-  // BONUS- Create a query to Find all departments, join with employees and roles and sum up utilized department budget
 
   // BONUS- Create a query to Remove a department
+  deleteDepartment(depDelete) {
+    // First, delete related records in the employee table
+    pool.query('DELETE FROM employee WHERE role_id IN (SELECT id FROM role WHERE department_id = (SELECT id FROM department WHERE name = $1))', [depDelete], (err, result) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
 
-  // BONUS- Create a query to Find all employees in a given department, join with roles to display role titles
+        // Now that the related records in the employee table are deleted, 
+        // delete related records in the role table
+        pool.query('DELETE FROM role WHERE department_id = (SELECT id FROM department WHERE name = $1)', [depDelete], (err, result) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
 
-  // BONUS- Create a query to Find all employees by manager, join with departments and roles to display titles and department names
+            // Now that the related records in the role table are deleted, 
+            // delete the department
+            pool.query('DELETE FROM department WHERE name = $1', [depDelete], (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+            });
+        });
+    });
+}
+
+  // BONUS- Create a query to Remove a role from the db
+  deleteRole(roleDelete) {
+    pool.query('DELETE FROM employee WHERE role_id = (SELECT id FROM role WHERE title = $1)', [roleDelete], (err, result) => {
+      if (err) {
+          console.error(err);
+          return;
+      }
+      pool.query('DELETE FROM role WHERE title = $1', [roleDelete], (err, result) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+      });
+    });
+  }
+  
+  // BONUS- Create a query to Remove an employee with the given id
+deleteEmployee(empName) {
+  const [firstName, lastName] = empName.split(' ');
+  this.findEmployeeIdByName(firstName, lastName)
+  .then ((empID) => {
+    pool.query('DELETE FROM employee WHERE id = $1', [empID], (err, result) => {
+      if (err) {
+      console.error(err);
+      return;
+      }
+    });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
 }
 
 const db = new DB();

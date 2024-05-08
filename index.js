@@ -20,7 +20,7 @@ function loadMainPrompts() {
       type: 'list',
       name: 'doList',
       message: 'What would you like to do?',
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update Employee Role', 'Nothing'],
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update Employee Role', 'Delete Department', 'Delete Role', 'Delete Employee', 'Nothing'],
     },
   ])
     .then((res) => {
@@ -46,6 +46,15 @@ function loadMainPrompts() {
           break;
         case 'Update Employee Role':
           updateRole();
+          break;
+        case 'Delete Department':
+          deleteDepartment();
+          break;
+        case 'Delete Role':
+          deleteRole();
+          break;
+        case 'Delete Employee':
+          deleteEmployee();
           break;
         default:
           quit();
@@ -228,19 +237,88 @@ function updateRole() {
   });
 }
 
-// BONUS- Create a function to View all employees that belong to a department
-
-// BONUS- Create a function to View all employees that report to a specific manager
-
-// BONUS- Create a function to Delete an employee
-
-// BONUS- Create a function to Update an employee's manager
+// BONUS- Create a function to Delete a department
+function deleteDepartment() {
+  return db.findAllDepartments()
+    .then(({rows}) => {
+      const departments = rows.map(dep => dep.department_name);
+      return prompt([
+        {
+          type: 'list',
+          name: 'department',
+          message: 'Which department do you want to delete?',
+          choices: departments
+        },
+      ]);
+    })
+    .then((res) => {
+      const depDelete = res.department;
+      db.deleteDepartment(depDelete);
+      console.log(`${depDelete} has been deleted`);
+    })
+    .then(() => {
+      loadMainPrompts();
+    })
+    .catch(err => {
+      console.error('Error:', err);
+    });
+}
 
 // BONUS- Create a function to Delete a role
+function deleteRole() {
+  return db.findAllRoles()
+  .then(({rows}) => {
+    const roles = rows.map(role => role.role_title);
+    return prompt([
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Which role do you want to delete?',
+        choices: roles
+      },
+    ]);
+  })
+  .then((res) => {
+    const roleDelete = res.role;
+    db.deleteRole(roleDelete);
+    console.log(`${roleDelete} has been deleted`);
+  })
+  .then(() => {
+    loadMainPrompts();
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
+}
 
-// BONUS- Create a function to Delete a department
-
-// BONUS- Create a function to View all departments and show their total utilized department budget
+// BONUS- Create a function to Delete an employee
+function deleteEmployee() {
+    return db.findAllEmployees()
+    .then((employees) => {
+      const employeeNames = new Set(employees.rows.map(employee => `${employee.employee_first_name} ${employee.employee_last_name}`));
+      const employeeChoices = [...employeeNames];
+  
+      return prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: "Which employee would you like to delete?",
+          choices: [...employeeChoices]
+        },     
+      ]);
+    })
+    .then((res) => {
+      const empName = res.employee;
+      db.deleteEmployee(empName);
+      console.log(`${empName} has been deleted`);
+    })
+    .then(() => {
+      loadMainPrompts();
+    })
+    .catch(err => {
+      console.error('Error:', err);
+    });
+}
 
 // Exit the application
 function quit() {
