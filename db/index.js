@@ -121,10 +121,18 @@ findEmployeeIdByName(firstName, lastName) {
   
   // TODO- Create a query to Update the given employee's role
 updateEmployee(empName, newRole) {
-  console.log(`${empName}'s role was updated to ${newRole}`);
   const [firstName, lastName] = empName.split(' ');
-  
-  pool.query('UPDATE employee SET ')
+
+  Promise.all([db.findRoleIdByTitle(newRole), db.findEmployeeIdByName(firstName, lastName)])
+  .then (([roleId, empID]) => {
+    pool.query('UPDATE employee SET role_id = $1 WHERE id = $2', [roleId, empID], (err, result) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(`${empName}'s role was updated to ${newRole}`);
+    });    
+})
 }
   // TODO- Create a query to Find all employees except the given employee id
 
