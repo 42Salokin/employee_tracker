@@ -1,19 +1,18 @@
--- Drop the database if it exists
+-- Drops the database if it exists
 DROP DATABASE IF EXISTS employees;
 
--- Create the new database
+-- Creates the new database
 CREATE DATABASE employees;
 
--- Connect to the database
+-- Connects to the database
 \c employees
 
--- TODO- write an SQL command to Create the department table
+-- Writes SQL commands to create the tables
 CREATE TABLE department (
     id SERIAL PRIMARY KEY,
     name VARCHAR(30) UNIQUE NOT NULL
 );
 
--- TODO- write an SQL command to Create the role table
 CREATE TABLE role (
     id SERIAL PRIMARY KEY,
     title VARCHAR(30) UNIQUE NOT NULL,
@@ -23,7 +22,6 @@ CREATE TABLE role (
     REFERENCES department(id)
 );
 
--- TODO- write an SQL command to Create the employee table
 CREATE TABLE employee (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,

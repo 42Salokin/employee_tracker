@@ -5,7 +5,7 @@ const { type } = require("os");
 
 init();
 
-// Display logo text, load main prompts
+// Displays logo text
 function init() {
   const logoText = logo({ name: "Employees of Middle Earth" }).render();
 
@@ -14,6 +14,7 @@ function init() {
   loadMainPrompts();
 }
 
+// Displays the starter prompt, calls a function for each choice
 function loadMainPrompts() {
   prompt([
     {
@@ -63,6 +64,7 @@ function loadMainPrompts() {
     });
 }
 
+// Calls the query function to find departments, displays the result in a table
 function viewDepartments() {
   db.findAllDepartments()
   .then(({rows}) => {
@@ -71,6 +73,7 @@ function viewDepartments() {
   })  
 }
 
+// Calls the query function to find roles, displays the result in a table
 function viewRoles() {
   db.findAllRoles()
   .then(({rows}) => {
@@ -79,7 +82,7 @@ function viewRoles() {
   })
 }
 
-// TODO- Create a function to View all employees
+// Calls the query function to find employees, displays the result in a table
 function viewEmployees() {
   db.findAllEmployees()
   .then(({rows}) => {
@@ -88,6 +91,7 @@ function viewEmployees() {
   })
 }
 
+// Displays a prompt to get the name of new department, sends choice to query function to add to department table
 function addDepartment() {
   prompt([
     {
@@ -109,7 +113,8 @@ function addDepartment() {
     });
 }
 
-// TODO- Create a function to Add a role
+// Gets all departments for list, displays a prompt to get the name of new role, salary, and department,
+//  sends answers to query function to add to role table
 function addRole() {
   return db.findAllDepartments()
     .then(({rows}) => {
@@ -149,7 +154,8 @@ function addRole() {
 }
 
 
-// TODO- Create a function to Add an employee
+// Gets all roles and employees for lists, displays a prompt to get the name of new employee's first name, last name, role, and department,
+//  sends answers to query function to add to employee table
 function addEmployee() {
   Promise.all([db.findAllRoles(), db.findAllEmployees()])
     .then(([roles, managers]) => {
@@ -200,7 +206,8 @@ function addEmployee() {
 }
 
 
-// TODO- Create a function to Update an employee's role
+// Gets all roles and employees for lists, displays a prompt to choose existing employee and select a new role for them,
+//  sends answers to query function to update employee table
 function updateRole() {
   Promise.all([db.findAllRoles(), db.findAllEmployees()])
   .then(([roles, employees]) => {
@@ -237,7 +244,8 @@ function updateRole() {
   });
 }
 
-// BONUS- Create a function to Delete a department
+// Gets all departments for list, displays a prompt to get the department to delete,
+//  sends choice to query function to delete from department table
 function deleteDepartment() {
   return db.findAllDepartments()
     .then(({rows}) => {
@@ -264,7 +272,8 @@ function deleteDepartment() {
     });
 }
 
-// BONUS- Create a function to Delete a role
+// Gets all roles for list, displays a prompt to get the role to delete,
+//  sends choice to query function to delete from role table
 function deleteRole() {
   return db.findAllRoles()
   .then(({rows}) => {
@@ -291,7 +300,8 @@ function deleteRole() {
   });
 }
 
-// BONUS- Create a function to Delete an employee
+// Gets all employees for list, displays a prompt to get the employee to delete,
+//  sends choice to query function to delete from employee table
 function deleteEmployee() {
     return db.findAllEmployees()
     .then((employees) => {
@@ -320,7 +330,7 @@ function deleteEmployee() {
     });
 }
 
-// Exit the application
+// Exits the application
 function quit() {
   console.log("Goodbye!");
   process.exit();

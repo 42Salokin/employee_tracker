@@ -1,5 +1,5 @@
 const { Pool } = require("pg");
-
+// Installs postgres, creates instance to call for db queries
 const pool = new Pool({
   host: "localhost",
   user: "postgres",

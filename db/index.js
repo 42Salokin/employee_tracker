@@ -13,17 +13,17 @@ class DB {
     }
   }
 
-  // TODO- Create a query to Find all departments
+  // Queries the db to find all departments and returns name column as department_name to look better
   findAllDepartments() {
     return this.query('SELECT id, name AS department_name FROM department;');
 }
 
-  // TODO- Create a query to Find all roles, join with departments to display the department name
+  // Queries the db to find all roles, joins with departments to display the department name, changes some column names for appearance
   findAllRoles() {
     return this.query('SELECT role.id, role.title AS role_title, role.salary, department.name AS department_name FROM role JOIN department ON role.department_id = department.id;');
 }
 
-  // TODO- Create a query to Find all employees, join with roles and departments to display their roles, salaries, departments, and managers
+  // Queries the db to find all employees, joins with roles and departments to display their roles, salaries, departments, and managers
   findAllEmployees() {
     return this.query(`
         SELECT e.first_name AS employee_first_name, e.last_name AS employee_last_name,
@@ -36,75 +36,68 @@ class DB {
     `);
 }
 
-
-  // TODO- Create a query to Create a new department
+  // Queries the db to create a new department
   createDepartment(newDep) {
     pool.query('INSERT INTO department (name) VALUES ($1)', [newDep], function (err, result) {
       if (err) {
         console.error(err);
-        return; // Exit early if there's an error
+        return; 
     }
     })
   }
 
-  // TODO- Create a query to Create a new role
+  // Queries the db to create a new role
   createRole(newRole, newSal, newDep) {
-    // Insert the new role into the role table
     pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, (SELECT id FROM department WHERE name = $3))', 
     [newRole, newSal, newDep], function (err, result) {
         if (err) {
             console.error(err);
-            return; // Exit early if there's an error
+            return; 
         }
     });
 }
 
-  // TODO- Create a query to Create a new employee
+  // Queries the db to find a role ID by the role title provided
   findRoleIdByTitle(roleName) {
-    // Return the promise directly from pool.query
+    // Returns the promise directly from pool.query
     return pool.query('SELECT id FROM role WHERE title = $1', [roleName])
         .then(result => {
-            // Check if any rows were returned
+            // Checks if any rows were returned
             if (result.rows.length > 0) {
-                // If rows were returned, return the role ID (assuming it's in the first row)
+                // If rows were returned, returns the role ID 
                 return result.rows[0].id;
             } else {
-                // If no rows were returned (role not found), return null
                 return null;
             }
         })
         .catch(err => {
-            // If there's an error with the query, throw the error
             throw err;
         });
 }
 
+// Queries the db to find an employee ID by the employee name provided
 findEmployeeIdByName(firstName, lastName) {
-  // Return the promise directly from pool.query
   return pool.query('SELECT id FROM employee WHERE first_name = $1 AND last_name = $2', [firstName, lastName])
       .then(result => {
-          // Check if any rows were returned
           if (result.rows.length > 0) {
-              // If rows were returned, return the employee ID (assuming it's in the first row)
               return result.rows[0].id;
           } else {
-              // If no rows were returned (employee not found), return null
               return null;
           }
       })
       .catch(err => {
-          // If there's an error with the query, throw the error
           throw err;
       });
 }
 
-
+// Queries the db to create a new employee
   createEmployee(firstName, lastName, roleName, managerName) {
+    // Separates the manager's full name into first and last names
     const [managerFirstName, managerLastName] = managerName.split(' ');
-    // Get role and manager IDs from the database
+    // Gets role and manager IDs from the db
     Promise.all([db.findRoleIdByTitle(roleName), db.findEmployeeIdByName(managerFirstName, managerLastName)])
       .then(([roleId, managerId]) => {
-        // Insert the new employee into the employee table
+        // Inserts the new employee into the employee table
         const query = `
           INSERT INTO employee (first_name, last_name, role_id, manager_id)
           VALUES ($1, $2, $3, $4)
@@ -118,12 +111,14 @@ findEmployeeIdByName(firstName, lastName) {
       });
   }
   
-  // TODO- Create a query to Update the given employee's role
+  // Queries the db to update the given employee's role
 updateEmployee(empName, newRole) {
+      // Separates the employee's full name into first and last names
   const [firstName, lastName] = empName.split(' ');
-
+    // Gets role and employee IDs from the db
   Promise.all([db.findRoleIdByTitle(newRole), db.findEmployeeIdByName(firstName, lastName)])
   .then (([roleId, empID]) => {
+    // Changes the employee's current role ID to new role ID
     pool.query('UPDATE employee SET role_id = $1 WHERE id = $2', [roleId, empID], (err, result) => {
       if (err) {
         console.error(err);
@@ -133,25 +128,22 @@ updateEmployee(empName, newRole) {
 })
 }
 
-  // BONUS- Create a query to Remove a department
+  // Queries the db to remove a department
   deleteDepartment(depDelete) {
-    // First, delete related records in the employee table
+    // Because the three tables are connected by PKs and FKs, have to start at the employee table and work thru to the department table
+    // Deletes related records in the employee table
     pool.query('DELETE FROM employee WHERE role_id IN (SELECT id FROM role WHERE department_id = (SELECT id FROM department WHERE name = $1))', [depDelete], (err, result) => {
         if (err) {
             console.error(err);
             return;
         }
-
-        // Now that the related records in the employee table are deleted, 
-        // delete related records in the role table
+        // Deletes related records in the role table
         pool.query('DELETE FROM role WHERE department_id = (SELECT id FROM department WHERE name = $1)', [depDelete], (err, result) => {
             if (err) {
                 console.error(err);
                 return;
             }
-
-            // Now that the related records in the role table are deleted, 
-            // delete the department
+            // Deletes the department
             pool.query('DELETE FROM department WHERE name = $1', [depDelete], (err, result) => {
                 if (err) {
                     console.error(err);
@@ -162,8 +154,9 @@ updateEmployee(empName, newRole) {
     });
 }
 
-  // BONUS- Create a query to Remove a role from the db
+  // Queries the db to remove a role 
   deleteRole(roleDelete) {
+    // Same thing as deleteDepartment, but now only have to delete from employee and role tables
     pool.query('DELETE FROM employee WHERE role_id = (SELECT id FROM role WHERE title = $1)', [roleDelete], (err, result) => {
       if (err) {
           console.error(err);
@@ -178,10 +171,11 @@ updateEmployee(empName, newRole) {
     });
   }
   
-  // BONUS- Create a query to Remove an employee with the given id
+  // Queries the db to remove an employee with the given id
 deleteEmployee(empName) {
   const [firstName, lastName] = empName.split(' ');
-  this.findEmployeeIdByName(firstName, lastName)
+  // Gets employee ID by the selected name
+  db.findEmployeeIdByName(firstName, lastName)
   .then ((empID) => {
     pool.query('DELETE FROM employee WHERE id = $1', [empID], (err, result) => {
       if (err) {
@@ -193,17 +187,9 @@ deleteEmployee(empName) {
 }
 
 
-
-
-
-
-
-
-
-
-
 }
 
+// Creates an instance of DB that can be used to call functions within DB
 const db = new DB();
 
 module.exports = new DB();

@@ -1,6 +1,7 @@
--- Connect to the database
+-- Connects to the database
 \c employees
 
+-- Enters given values into tables
 INSERT INTO department
     (name)
 VALUES
