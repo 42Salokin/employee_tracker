@@ -91,57 +91,48 @@ function addDepartment() {
 }
 
 // TODO- Create a function to Add a role
-function depList() {
+function addRole() {
   return db.findAllDepartments()
-  .then(({rows}) => {
-    return rows.map(dep => dep.name);
-  })
-}
-
-function createRolePrompt(departments) {
-  return prompt([
-    {
-      type: 'input',
-      name: 'roleName',
-      message: 'What is the name of the role?'
-    },
-    {
-      type: 'input',
-      name: 'salary',
-      message: "What is the role's salary?"
-    },
-    {
-      type: 'list',
-      name: 'department',
-      message: 'Which department is the role in?',
-      choices: departments
-    },
-  ])
-}
-
-function addRole() { 
-  depList()
-    .then(departments => {
-    return createRolePrompt(departments);
-  })
+    .then(({rows}) => {
+      const departments = rows.map(dep => dep.name);
+      return prompt([
+        {
+          type: 'input',
+          name: 'roleName',
+          message: 'What is the name of the role?'
+        },
+        {
+          type: 'input',
+          name: 'salary',
+          message: "What is the role's salary?"
+        },
+        {
+          type: 'list',
+          name: 'department',
+          message: 'Which department is the role in?',
+          choices: departments
+        },
+      ]);
+    })
     .then((res) => {
       const newRole = res.roleName;
       const newSal = res.salary;
       const newDep = res.department;
-      db.createRole(newRole, newSal, newDep)
+      return db.createRole(newRole, newSal, newDep);
     })
     .catch(err => {
       console.error('Error:', err);
     });
 }
 
+
 // TODO- Create a function to Add an employee
 function addEmployee() {
   Promise.all([db.findAllRoles(), db.findAllEmployees()])
     .then(([roles, managers]) => {
       const roleChoices = roles.rows.map(role => role.role_title);
-      const uniqueManagerNames = new Set(managers.rows.map(manager => `${manager.manager_first_name} ${manager.manager_last_name}`));
-      const managerChoices = [...uniqueManagerNames];
+      const managerNames = new Set(managers.rows.map(manager => `${manager.manager_first_name} ${manager.manager_last_name}`));
+      const managerChoices = [...managerNames];
 
       return prompt([
         {
@@ -184,7 +175,35 @@ function addEmployee() {
 
 // TODO- Create a function to Update an employee's role
 function updateRole() {
-  console.log("Which employee's role do you want to update?");
+  Promise.all([db.findAllRoles(), db.findAllEmployees()])
+  .then(([roles, employees]) => {
+    const roleChoices = roles.rows.map(role => role.role_title);
+    const employeeNames = new Set(employees.rows.map(employee => `${employee.employee_first_name} ${employee.employee_last_name}`));
+    const employeeChoices = [...employeeNames];
+
+    return prompt([
+      {
+        type: 'list',
+        name: 'employee',
+        message: "Which employee's role would you like to update?",
+        choices: [...employeeChoices]
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: "Which new role would you like to give that employee?",
+        choices: roleChoices
+      },      
+    ]);
+  })
+  .then((res) => {
+    const empName = res.employee;
+    const newRole = res.role;
+    db.updateEmployee(empName, newRole);
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
 }
 
 // BONUS- Create a function to View all employees that belong to a department

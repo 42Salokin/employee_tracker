@@ -79,14 +79,11 @@ class DB {
 
 findEmployeeIdByName(firstName, lastName) {
   // Return the promise directly from pool.query
-  console.log(`Line 82:${firstName, lastName}`);
   return pool.query('SELECT id FROM employee WHERE first_name = $1 AND last_name = $2', [firstName, lastName])
       .then(result => {
           // Check if any rows were returned
-          console.log(`Line 86:${result}`);
           if (result.rows.length > 0) {
               // If rows were returned, return the employee ID (assuming it's in the first row)
-              console.log(`Line 89:${result.rows[0].id}`);
               return result.rows[0].id;
           } else {
               // If no rows were returned (employee not found), return null
@@ -101,12 +98,10 @@ findEmployeeIdByName(firstName, lastName) {
 
 
   createEmployee(firstName, lastName, roleName, managerName) {
-    console.log(`Line 104: ${managerName}`);
     const [managerFirstName, managerLastName] = managerName.split(' ');
     // Get role and manager IDs from the database
     Promise.all([db.findRoleIdByTitle(roleName), db.findEmployeeIdByName(managerFirstName, managerLastName)])
       .then(([roleId, managerId]) => {
-        console.log(`Line 108:${managerId}`);
         // Insert the new employee into the employee table
         const query = `
           INSERT INTO employee (first_name, last_name, role_id, manager_id)
@@ -124,13 +119,18 @@ findEmployeeIdByName(firstName, lastName) {
       });
   }
   
-
+  // TODO- Create a query to Update the given employee's role
+updateEmployee(empName, newRole) {
+  console.log(`${empName}'s role was updated to ${newRole}`);
+  const [firstName, lastName] = empName.split(' ');
+  
+  pool.query('UPDATE employee SET ')
+}
   // TODO- Create a query to Find all employees except the given employee id
 
 
   // BONUS- Create a query to Remove an employee with the given id
 
-  // TODO- Create a query to Update the given employee's role
 
   // BONUS- Create a query to Update the given employee's manager
 
